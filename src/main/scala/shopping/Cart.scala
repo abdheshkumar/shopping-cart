@@ -1,6 +1,6 @@
 package shopping
 
-import shopping.Cart.{BillToPay, CalculatedPrice}
+import shopping.Cart.CalculatedPrice
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -32,6 +32,15 @@ case class Cart(stockService: Stock) extends PrepareBilling {
         if (items.length == 0) cart.remove(item)
         else {
           cart += item -> items.tail
+        }
+        calculatedPrices.clear()
+        cart.foreach {
+          case (item, items) =>
+            calculateItemPrice(item, items.length).foreach { f =>
+              val itemWithPrice = (item, f)
+              calculatedPrices += itemWithPrice
+            }
+
         }
     }
   }
@@ -92,8 +101,6 @@ case class Cart(stockService: Stock) extends PrepareBilling {
 }
 
 object Cart extends Cart(new Stock) {
-
-  case class BillToPay(total: Double = 0, discount: Double = 0)
 
   case class CalculatedPrice(price: Double, discount: Double)
 
